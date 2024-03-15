@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Random Fluctuation</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+    <style>
+        body { margin: 0; overflow: hidden; } 
+    </style>
+</head>
+<body>
+    <script>
+        let num = 2000;
+        let range = 6;
+        let ax = new Array(num);
+        let ay = new Array(num);
+        let bgImage;
+
+        function preload() {
+            bgImage = loadImage("background.png"); 
+        }
+
+        function setup() {
+            createCanvas(windowWidth, windowHeight);
+            for (let i = 0; i < num; i++) {
+                ax[i] = width / 2;
+                ay[i] = height / 2;
+            }
+            frameRate(30);
+        }
+
+        function draw() {
+            background(bgImage);
+
+            for (let i = 1; i < num; i++) {
+                ax[i - 1] = ax[i];
+                ay[i - 1] = ay[i];
+            }
+
+            // Insert new values at the end, simulating Brownian motion
+            ax[num - 1] += random(-range, range);
+            ay[num - 1] += random(-range, range);
+
+            // Constrain the new point to the canvas area
+            ax[num - 1] = constrain(ax[num - 1], 0, width);
+            ay[num - 1] = constrain(ay[num - 1], 0, height);
+
+            // Draw the line
+            for (let i = 1; i < num; i++) {
+                let val = i / num * 204.0 + 51;
+                stroke(val);
+                line(ax[i - 1], ay[i - 1], ax[i], ay[i]);
+            }
+        }
+
+        function windowResized() {
+            resizeCanvas(windowWidth, windowHeight);
+            bgImage.resize(windowWidth, windowHeight); // Resize bgImage to fit the new canvas size
+            // Reset starting position to middle of the screen
+            for (let i = 0; i < num; i++) {
+                ax[i] = width / 2;
+                ay[i] = height / 2;
+            }
+        }
+    </script>
+</body>
+</html>
