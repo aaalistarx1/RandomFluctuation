@@ -1,67 +1,133 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Random Fluctuation</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
     <style>
-        body { margin: 0; overflow: hidden; } 
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+        video {
+            display: none;
+        }
     </style>
 </head>
+
 <body>
     <script>
         let num = 2000;
         let range = 6;
         let ax = new Array(num);
         let ay = new Array(num);
-        let bgImage;
-
-        function preload() {
-            bgImage = loadImage("background.png"); 
-        }
+        let bgVideos = {};
+        let currentBgVideo;
 
         function setup() {
             createCanvas(windowWidth, windowHeight);
+            frameRate(30);
+            
+            // Assign video elements to the times of day
+            bgVideos['LateNight'] = createVideo('BG/LateNight.mp4');
+            bgVideos['EarlyMorning'] = createVideo('BG/EarlyMorning.mp4');
+            bgVideos['Morning'] = createVideo('BG/Morning.mp4');
+            bgVideos['Noon'] = createVideo('BG/Noon.mp4');
+            bgVideos['Afternoon'] = createVideo('BG/Afternoon.mp4');
+            bgVideos['Twilight'] = createVideo('BG/Twilight.mp4');
+            bgVideos['EarlyNight'] = createVideo('BG/EarlyNight.mp4');
+            
+            for (let vid in bgVideos) {
+                bgVideos[vid].hide(); // Hide the HTML video element
+                bgVideos[vid].volume(0); // Mute the video
+                bgVideos[vid].loop(); // Make the video loop
+            }
+
+            currentBgVideo = getBackgroundVideoForCurrentTime();
+            currentBgVideo.play();
+
+            // Initialize the ax and ay arrays
             for (let i = 0; i < num; i++) {
                 ax[i] = width / 2;
                 ay[i] = height / 2;
             }
-            frameRate(30);
         }
 
+
+
         function draw() {
-            background(bgImage);
+            background(0);
+            if (currentBgVideo) {
+                image(currentBgVideo, 0, 0, width, height);
+            }
 
             for (let i = 1; i < num; i++) {
                 ax[i - 1] = ax[i];
                 ay[i - 1] = ay[i];
             }
 
-            // Insert new values at the end, simulating Brownian motion
             ax[num - 1] += random(-range, range);
             ay[num - 1] += random(-range, range);
-
-            // Constrain the new point to the canvas area
             ax[num - 1] = constrain(ax[num - 1], 0, width);
             ay[num - 1] = constrain(ay[num - 1], 0, height);
 
-            // Draw the line
             for (let i = 1; i < num; i++) {
                 let val = i / num * 204.0 + 51;
                 stroke(val);
                 line(ax[i - 1], ay[i - 1], ax[i], ay[i]);
             }
+
+            updateBackgroundVideo();
+        }
+
+
+        // Mouse clicked event handler
+        function mouseClicked() {
+            // Start a new movement from the mouse position
+            for (let i = 0; i < num; i++) {
+                ax[i] = mouseX;
+                ay[i] = mouseY;
+            }
+        }
+
+        function getBackgroundVideoForCurrentTime() {
+            let now = new Date();
+            let hour = now.getHours();
+            if (hour >= 0 && hour < 6) {
+                return bgVideos['LateNight'];
+            } else if (hour >= 6 && hour < 8) {
+                return bgVideos['EarlyMorning'];
+            } else if (hour >= 8 && hour < 12) {
+                return bgVideos['Morning'];
+            } else if (hour >= 12 && hour < 14) {
+                return bgVideos['Noon'];
+            } else if (hour >= 14 && hour < 17) {
+                return bgVideos['Afternoon'];
+            } else if (hour >= 17 && hour < 19) {
+                return bgVideos['Twilight'];
+            } else {
+                return bgVideos['EarlyNight'];
+            }
+        }
+
+        function updateBackgroundVideo() {
+            let newBgVideo = getBackgroundVideoForCurrentTime();
+            if (currentBgVideo !== newBgVideo) {
+                currentBgVideo.stop();
+                currentBgVideo = newBgVideo;
+                currentBgVideo.loop();
+                currentBgVideo.play();
+            }
         }
 
         function windowResized() {
             resizeCanvas(windowWidth, windowHeight);
-            bgImage.resize(windowWidth, windowHeight); // Resize bgImage to fit the new canvas size
-            // Reset starting position to middle of the screen
-            for (let i = 0; i < num; i++) {
-                ax[i] = width / 2;
-                ay[i] = height / 2;
+            if (currentBgVideo) {
+                currentBgVideo.size(windowWidth, windowHeight);
             }
         }
     </script>
 </body>
+
 </html>
