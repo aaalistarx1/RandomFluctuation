@@ -36,7 +36,7 @@
             bgVideos['Noon'] = createVideo('BG/Noon.mp4');
             bgVideos['Afternoon'] = createVideo('BG/Afternoon.mp4');
             bgVideos['Twilight'] = createVideo('BG/Twilight.mp4');
-            bgVideos['EarlyNight'] = createVideo('BG/EarlyNight.mp4');
+            bgVideos['EarlyNight'] = createVideo('BG/Early Night.mp4');
             
             for (let vid in bgVideos) {
                 bgVideos[vid].hide(); // Hide the HTML video element
@@ -104,7 +104,7 @@
                 return bgVideos['Noon'];
             } else if (hour >= 14 && hour < 17) {
                 return bgVideos['Afternoon'];
-            } else if (hour >= 17 && hour <= 19) {
+            } else if (hour >= 17 && hour <= 20) {
                 return bgVideos['Twilight'];
             } else {
                 return bgVideos['EarlyNight'];
